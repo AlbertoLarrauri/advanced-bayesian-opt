@@ -1,0 +1,24 @@
+#TRIMBG,bitvector,interval,0,127
+TRIMBG,string,enum,0,127
+
+#TRIMCUR,bitvector,interval,0,31
+TRIMCUR,string,enum,0,31
+
+#models,string,enum,nom,4p5sfast,4p5sslow,4p5ssf,4p5sfs
+models,string,enum,nom,4p5sfast,4p5sslow
+
+#T,string,enum,-40,27,40,127,150,175
+T,string,enum,-40,27,40,175
+
+# vdda_evr and vdda_hpbg can vary but they should always have the same value
+vdda_evr,string,enum,2.35
+vdda_hpbg,string,enum,2.35
+
+# vddpd should vary independently of vdda_evr/vdda_hpbg
+vddpd,string,enum,1.25
+
+# keep vref fixed to 0.6
+vref,string,enum,0.6
+
+# keep vss fixed to 0v00
+vss,string,enum,0v00

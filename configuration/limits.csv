@@ -1,0 +1,11 @@
+rafa 
+dsaf
+df
+
+dsaf
+
+%spec = (
+	stuff =>  { label => "holaaa",   min=>  8e-3, max =>  1456},
+
+	stuff2 => { label =>  "adiooos", max=>24, min   => 5e-4},
+	);
