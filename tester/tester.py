@@ -194,6 +194,8 @@ class Tester:
                 n_runs *= len(self.in_values[in_param_name])
                 in_values_[in_param_name] = self.in_values[in_param_name]
 
+        assert n_runs == 1, "Error, multiple runs defined. Can only perform one run at a time"
+
         # compute and add a run-line for every combination of values from the specified value ranges of the input params
 
         count = 0
@@ -281,7 +283,7 @@ class Tester:
 
         print('\nCheck "./simulation.log" for logs of the fcv execution')
 
-    def load_out_results(self, waiting_tolerance_threshold=100):
+    def load_out_results(self, timeout=600, waiting_tolerance_threshold=100):
         # load the measurements of the monitored output parameters during/after the execution of a simulation
         #
         # 'waiting_tolerance_threshold' indicates the number of missing/uncompleted simulation runs below which the user
@@ -291,6 +293,7 @@ class Tester:
         # 'parameters.csv' stores the output measurements (and the input params) of *all* runs at one place;
         # the output measurements (but not also the input params) are also stored individually for each single run
         # separately in the folders ..ws_<username>/simulation/fcv_c40fla_bgp/RESULTS/TRAIN_BGP/TITAN/hpbg_startup_trimall/<RUN_NAME from simlist>/titan.tr.measure
+        delay = 0
         output_measurements_path = os.path.join('.', 'RESULTS', 'TRAIN_BGP', 'TITAN', 'parameters.csv')
 
         while True:
@@ -299,7 +302,7 @@ class Tester:
                     with open(output_measurements_path, 'r') as csvfile:
                         reader = csv.DictReader(csvfile, delimiter=';')
                         count = 0
-                        completed_runs = set()
+                        # completed_runs = set()
                         for row in reader:
                             if row['Run'] not in self.out_results:
                                 self.out_results[row['Run']] = dict()
@@ -314,32 +317,20 @@ class Tester:
                                 print('\nWARNING: Parameter "{}" measured in "parameters.csv" for run="{}" but not specified in "limits.txt"!'.format(row['Parameter Label'], row['Run']))
 
                         # check if all out-params specified in "limits.txt" have been measured in every run
-                        for out_param in self.limits:
-                            for run in sorted(self.out_results):
-                                if out_param not in self.out_results[run]:
-                                    print('\nWARNING: out-parameter "{}" specified by the user in "limits.txt" but not available for run="{}" in the measurements file "parameters.csv"!'.format(out_param, run))
+                        # for out_param in self.limits:
+                        #     for run in sorted(self.out_results):
+                        #         if out_param not in self.out_results[run]:
+                        #             print('\nWARNING: out-parameter "{}" specified by the user in "limits.txt" but not available for run="{}" in the measurements file "parameters.csv"!'.format(out_param, run))
 
                         if count < len(self.runs)*len(self.limits):
-                            missing_runs = set(self.runs.keys()) - completed_runs
-                            print('\n{}\nSimulation not done yet! Only {} measurements out of {} done by now.'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), count, len(self.runs)*len(self.limits)))
-                            missing_runs_relaunched = False
-                            if len(missing_runs) <= waiting_tolerance_threshold:
-                                print("Still missing runs: {}".format(missing_runs))
-                                user_input = raw_input('Re-launch simulator with the missing runs? (y/n): ')
-                                if user_input.lower() == 'y' or user_input.lower() == 'yes':
-                                    missing_runs_relaunched = True
-                                    for missing_run in missing_runs:
-                                        cmd = "nohup fcv -titan 'hpbg_startup_trimall/{}' > simulation.log 2>&1 &".format(missing_run)
-                                        return_code = os.system(cmd)
-                                        if return_code:
-                                            print('Oooops... it seems that the simulator has not been launched for {}!'.format(missing_run))
-                            if not missing_runs_relaunched:
-                                user_input = raw_input('Abort waiting? (y/n): ')
-                                if user_input.lower() == 'y' or user_input.lower() == 'yes':
-                                    print('Waiting aborted. Only partial results loaded!\n')
-                                    return
+                            delay = delay + 10
+                            if delay >= timeout:
+                                print('Simulation took longer than timeout \n')
+                                return
+                            time.sleep(10)
                             # (re)initialize self.out_results for a new read
                             self.out_results = dict()
+                            continue
                         else:
                             # count == len(self.runs)*len(self.limits)
                             # we are done, all measurements have been logged and loaded
@@ -350,10 +341,16 @@ class Tester:
                     print(repr(e))
                     return
             else:
-                user_input = raw_input('\nMeasurements file "parameters.csv" not even initialized yet!\nAbort waiting? (y/n): ')
-                if user_input.lower() == 'y' or user_input.lower() == 'yes':
-                    print('Waiting aborted.\n')
+                # user_input = raw_input('\nMeasurements file "parameters.csv" not even initialized yet!\nAbort waiting? (y/n): ')
+                # if user_input.lower() == 'y' or user_input.lower() == 'yes':
+                #     print('Waiting aborted.\n')
+                #     return
+                delay = delay + 10
+                if delay >= timeout:
+                    print('Simulation took longer than timeout \n')
                     return
+                time.sleep(10)
+                continue
 
     def evaluate_out_results(self, with_logging=True):
         # compare self.out_results to self.limits;
