@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import time
-import IPython
+#import IPython
 import os
 import json
 from datetime import datetime
@@ -20,9 +20,8 @@ from tester.tester import Tester
 
 tester = Tester()
 
-model_input = [2.3, 1.20, 42.]
+model_input = [2.3, 1.20, 42.1]
 
-assert model_input.shape == 1
 
 filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
 with open(filepath, 'w') as file:

@@ -311,7 +311,7 @@ class Tester:
                                     print('\nWARNING: multiple values for param="{}" and run="{}" detected in "parameters.csv"!'.format(row['Parameter Label'], row['Run']))
                                 else:
                                     count += 1
-                                    completed_runs.add(row['Run'])
+                                    # completed_runs.add(row['Run'])
                                     self.out_results[row['Run']][row['Parameter Label']] = float(row['Value'])
                             else:
                                 print('\nWARNING: Parameter "{}" measured in "parameters.csv" for run="{}" but not specified in "limits.txt"!'.format(row['Parameter Label'], row['Run']))
