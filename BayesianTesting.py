@@ -5,7 +5,7 @@
 
 
 import time
-import IPython
+# import IPython
 import os
 import json
 from datetime import datetime
@@ -67,46 +67,55 @@ out_spec = [1.099, 1.165]
 # Returns the model output on single or multiple inputs (as in Cristi's code )
 
 def _evaluate_model_once(model_input):
-    assert model_input.shape == 1
-    filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
-    with open(filepath, 'w') as file:
-        file.write('TRIMBG,string,enum,0 \n')
-        file.write('TRIMCUR,string,enum,0 \n')
-        file.write('models,string,enum,nom \n')
-        file.write('vref,string,enum,0.6 \n')
-        file.write('vss,string,enum,0v00 \n')
-        file.write("vdda_evr,string,enum,{} \n".format(model_input[0]))
-        file.write("vdda_hpbg,string,enum,{} \n".format(model_input[0]))
-        file.write("vddpd,string,enum,{} \n".format(model_input[1]))
-        file.write("T,string,enum,{} \n".format(model_input[2]))
+	assert model_input.shape == 1
+	with open(filepath, 'w') as file:
+		file.write('TRIMBG,string,enum,0 \n')
+		file.write('TRIMCUR,string,enum,0 \n')
+		file.write('models,string,enum,nom \n')
+		file.write('vref,string,enum,0.6 \n')
+		file.write('vss,string,enum,0v00 \n')
+		file.write("vdda_evr,string,enum,{} \n".format(model_input[0]))
+		file.write("vdda_hpbg,string,enum,{} \n".format(model_input[0]))
+		file.write("vddpd,string,enum,{} \n".format(model_input[1]))
+		file.write("T,string,enum,{} \n".format(model_input[2]))
 
-    tester.load_in_values(os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv'))
+	tester.load_limits(os.path.join('.', 'advanced-bayesian-opt', 'configuration', 'limits.txt'))
+	#print('\nLoaded limits:\n{}'.format(tester.limits))
 
+	tester.load_in_values(os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv'))
+	#print('\nLoaded in-values:\n{}'.format(tester.in_values))
+	#print(tester.runs)
 
-    return
+	# NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
+	tester.run_simulation()
+	# print('\nSimulation launched!')
+
+	tester.load_out_results()
+	# print('\nLoaded out-results:\n{}'.format(tester.out_results))
+
+	output=tester.out_results['RUN1']['pms_V_hpbg']
+
+	# print('\n Relevant output: \n {}, {}'.format(output,output+1))
+
+	return output
+
 
 
 def evaluate_model(model_input):
-    model_input = np.array(model_input)
-    if len(model_input.shape) == 1:
-        one_datapoint = True
-        model_input = [model_input]
-    elif len(model_input.shape) == 2:
-        one_datapoint = False
-    else:
-        assert False, "illegal model input: {}".format(model_input)
+	model_input = np.array(model_input)
+	if len(model_input.shape) == 1:
+		one_datapoint = True
+		model_input = [model_input]
+	elif len(model_input.shape) == 2:
+		one_datapoint = False
+	else:
+		assert False, "illegal model input: {}".format(model_input)
 
-    if sut_scaler_X is not None:
-        model_input = sut_scaler_X.transform(model_input)
-    model_output = (sut_model.predict(model_input)).ravel()
-    if sut_scaler_y is not None:
-        model_output = sut_scaler_y.inverse_transform(model_output.reshape(-1, 1)).ravel()
+	if one_datapoint:
+		return _evaluate_model_once(model_input)
+	else:
+		return [_evaluate_model_once(i) for i in model_input]
 
-    if one_datapoint:
-        # we want the model_output to be a scalar and not a list containing a single scalar
-        model_output = model_output[0]
-
-    return model_output
 
 
 # In[5]:
@@ -213,11 +222,11 @@ for i in range(num_iters):
         lls_[i] = loss.numpy()
 
 # Plot the loss evolution as a sanity check
-plt.figure(figsize=(12, 4))
-plt.plot(lls_)
-plt.xlabel("Training iteration")
-plt.ylabel("Log marginal likelihood")
-plt.show()
+# plt.figure(figsize=(12, 4))
+# plt.plot(lls_)
+# plt.xlabel("Training iteration")
+# plt.ylabel("Log marginal likelihood")
+# plt.show()
 
 # Log all the relevant information
 
@@ -404,67 +413,46 @@ with open(filepath, 'wb') as file:
 # In[10]:
 
 
-plt.figure(figsize=(12, 4))
-plt.plot(regrets)
-plt.xlabel("Optimization iteration")
-plt.ylabel("Value")
+# plt.figure(figsize=(12, 4))
+# plt.plot(regrets)
+# plt.xlabel("Optimization iteration")
+# plt.ylabel("Value")
 
 # In[11]:
 
 
-plt.figure(figsize=(12, 4))
-plt.plot(mean_regrets)
-plt.xlabel("Optimization iteration")
-plt.ylabel("Mean regret")
-plt.show()
+# plt.figure(figsize=(12, 4))
+# plt.plot(mean_regrets)
+# plt.xlabel("Optimization iteration")
+# plt.ylabel("Mean regret")
+# plt.show()
 
 # In[12]:
 
 
 real_dists = transform_y.inverse_transform(model_info['typical_dist']) - transform_y.inverse_transform([0.0])
-plt.figure(figsize=(12, 4))
-plt.plot(real_dists)
-plt.xlabel("Optimization iteration/10")
-plt.ylabel("Value")
+# plt.figure(figsize=(12, 4))
+# plt.plot(real_dists)
+# plt.xlabel("Optimization iteration/10")
+# plt.ylabel("Value")
 
 # In[13]:
 
 
-plt.figure(figsize=(12, 4))
-plt.plot(model_info['max_std'])
-plt.xlabel("Optimization iteration")
-plt.ylabel("Value")
+# plt.figure(figsize=(12, 4))
+# plt.plot(model_info['max_std'])
+# plt.xlabel("Optimization iteration")
+# plt.ylabel("Value")
 
 # In[15]:
 
 
 dists = [np.linalg.norm(i) for i in (real_choices - max_point)]
-print(min(dists))
+# print(min(dists))
 
 # In[16]:
 
 
-print(max(real_values))
-print(max_value)
+# print(max(real_values))
+# print(max_value)
 
-# In[18]:
-
-
-min_point, min_value = pso(func=lambda x: -evaluate_model(x), lb=lb, ub=ub, maxiter=50, debug=False)
-
-# In[19]:
-
-
-print(value)
-
-# In[20]:
-
-
-to_save = {
-    'point': min_point,
-    'value': min_value
-}
-
-path = os.path.join('.', 'GPTraining', 'minimum.npyz')
-with open(path, 'wb') as file:
-    np.savez(file, **to_save)

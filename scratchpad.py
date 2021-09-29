@@ -24,6 +24,7 @@ model_input = [2.3, 1.20, 42.1]
 
 
 filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
+
 with open(filepath, 'w') as file:
     file.write('TRIMBG,string,enum,0 \n')
     file.write('TRIMCUR,string,enum,0 \n')
@@ -44,7 +45,13 @@ print(tester.runs)
 
 # NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
 tester.run_simulation()
-print('\nSimulation launched!')
+# print('\nSimulation launched!')
 
 tester.load_out_results()
-print('\nLoaded out-results:\n{}'.format(tester.out_results))
+# print('\nLoaded out-results:\n{}'.format(tester.out_results))
+
+output=tester.out_results['RUN1']['pms_V_hpbg']
+
+# print('\n Relevant output: \n {}, {}'.format(output,output+1))
+
+
