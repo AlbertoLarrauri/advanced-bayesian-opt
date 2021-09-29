@@ -20,8 +20,9 @@ from tester.tester import Tester
 
 tester = Tester()
 
-model_input = [2.3, 1.20, 42.1]
+model_input = [2.3, 1.20, 42.]
 
+assert model_input.shape == 1
 
 filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
 with open(filepath, 'w') as file:
@@ -48,3 +49,4 @@ print('\nSimulation launched!')
 
 tester.load_out_results()
 print('\nLoaded out-results:\n{}'.format(tester.out_results))
+
