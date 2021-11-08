@@ -20,9 +20,9 @@ from tester.tester import Tester
 
 tester = Tester()
 
-model_input = [2.3, 1.20, 42.]
+model_input = np.array([2.3, 1.20, 42.])
 
-assert model_input.shape == 1
+assert len(model_input.shape) == 1
 
 filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
 
