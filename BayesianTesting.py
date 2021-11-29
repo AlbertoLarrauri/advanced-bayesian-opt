@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # coding: utf-8
 
@@ -12,12 +13,12 @@ from datetime import datetime
 from pyswarm import pso
 import joblib
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import tensorflow.compat.v2 as tf
 import tensorflow_probability as tfp
 from tensorflow import keras
-import keras.backend as K
+import tensorflow.keras.backend as K
 
 K.set_floatx('float32')
 from keras.models import Sequential, Model
@@ -48,6 +49,8 @@ os.mkdir(log_path)
 
 tester = Tester()
 tester.load_limits(os.path.join('.', 'advanced-bayesian-opt', 'configuration', 'limits.txt'))
+
+
 # Define bounds for the input variables and the spec for the output value.
 # This is hardcoded now, but should be easy to load from a file.
 
@@ -67,7 +70,9 @@ out_spec = [1.099, 1.165]
 # Returns the model output on single or multiple inputs (as in Cristi's code )
 
 def _evaluate_model_once(model_input):
-	assert model_input.shape == 1
+	print(model_input)
+	assert len(model_input.shape) == 1
+	filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
 	with open(filepath, 'w') as file:
 		file.write('TRIMBG,string,enum,0 \n')
 		file.write('TRIMCUR,string,enum,0 \n')
@@ -91,7 +96,8 @@ def _evaluate_model_once(model_input):
 	# print('\nSimulation launched!')
 
 	tester.load_out_results()
-	# print('\nLoaded out-results:\n{}'.format(tester.out_results))
+	
+	print('\nLoaded out-results:\n{}'.format(tester.out_results))
 
 	output=tester.out_results['RUN1']['pms_V_hpbg']
 
@@ -102,6 +108,7 @@ def _evaluate_model_once(model_input):
 
 
 def evaluate_model(model_input):
+	print(model_input)
 	model_input = np.array(model_input)
 	if len(model_input.shape) == 1:
 		one_datapoint = True
@@ -156,7 +163,7 @@ num_training_samples = np.int32(num_samples * training_proportion)
 training_Xs = np.random.uniform(lb, ub, (num_training_samples, 3))
 training_Xs = training_Xs.astype(np.float32)
 training_ys = evaluate_model(training_Xs)
-training_ys = training_ys.astype(np.float32)
+training_ys = np.array(training_ys, dtype=np.float32)
 
 # Normalize the data
 transform_X = StandardScaler()
@@ -222,11 +229,13 @@ for i in range(num_iters):
         lls_[i] = loss.numpy()
 
 # Plot the loss evolution as a sanity check
-# plt.figure(figsize=(12, 4))
-# plt.plot(lls_)
-# plt.xlabel("Training iteration")
-# plt.ylabel("Log marginal likelihood")
-# plt.show()
+plt.figure(figsize=(12, 4))
+plt.plot(lls_)
+plt.xlabel("Training iteration")
+plt.ylabel("Log marginal likelihood")
+path = os.path.join(log_path, 'run_stats.txt')
+plt.savefig(path)
+
 
 # Log all the relevant information
 
@@ -394,7 +403,7 @@ for i in range(len(regrets)):
     mean = sum(regrets[:i + 1]) / (i + 1.)
     mean_regrets.append(mean)
 
-#     Log relevant information about the optimization rounds
+#  Log relevant information about the optimization rounds
 
 filepath = os.path.join(log_path, 'optimization_rounds.npyz')
 to_save = {

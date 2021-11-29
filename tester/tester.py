@@ -79,6 +79,7 @@ class Tester:
             )
 
     def load_in_values(self, filename, create_simlist=True):
+        self.in_values = {}
         """
         Load values for the input parameters into self.in_values from the file 'filename'.
         NOTE: set 'create_simlist' to False when the simulation with the specifications from limits.txt and
@@ -283,7 +284,7 @@ class Tester:
 
         print('\nCheck "./simulation.log" for logs of the fcv execution')
 
-    def load_out_results(self, timeout=600, waiting_tolerance_threshold=100):
+    def load_out_results(self, timeout=900, waiting_tolerance_threshold=100):
         # load the measurements of the monitored output parameters during/after the execution of a simulation
         #
         # 'waiting_tolerance_threshold' indicates the number of missing/uncompleted simulation runs below which the user
