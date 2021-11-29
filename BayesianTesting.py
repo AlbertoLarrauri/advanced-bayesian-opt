@@ -19,7 +19,6 @@ import tensorflow_probability as tfp
 from tensorflow import keras
 import tensorflow.keras.backend as K
 
-K.set_floatx('float32')
 from keras.models import Sequential, Model
 # from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization, Lambda, Layer
 # from tensorflow.keras import losses
@@ -29,6 +28,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 # from sklearn.model_selection import train_test_split
 # from sklearn.metrics import r2_score, mean_absolute_error, median_absolute_error
+
+K.set_floatx('float32')
 
 tfb = tfp.bijectors
 tfd = tfp.distributions
