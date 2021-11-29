@@ -1,5 +1,4 @@
-
-#!/usr/bin/env python
+# !/usr/bin/env python
 # coding: utf-8
 
 # In[1]:
@@ -13,7 +12,7 @@ from datetime import datetime
 from pyswarm import pso
 import joblib
 import numpy as np
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import tensorflow.compat.v2 as tf
 import tensorflow_probability as tfp
@@ -42,14 +41,13 @@ from tester.tester import Tester
 # Make directory for saving logs
 
 time_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-log_path = os.path.join('.', 'advanced-bayesian-opt' ,time_now)
+log_path = os.path.join('.', 'advanced-bayesian-opt', time_now)
 os.mkdir(log_path)
 
 # Initialize tester object
 
 tester = Tester()
 tester.load_limits(os.path.join('.', 'advanced-bayesian-opt', 'configuration', 'limits.txt'))
-
 
 # Define bounds for the input variables and the spec for the output value.
 # This is hardcoded now, but should be easy to load from a file.
@@ -70,59 +68,57 @@ out_spec = [1.099, 1.165]
 # Returns the model output on single or multiple inputs (as in Cristi's code )
 
 def _evaluate_model_once(model_input):
-	print(model_input)
-	assert len(model_input.shape) == 1
-	filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
-	with open(filepath, 'w') as file:
-		file.write('TRIMBG,string,enum,0 \n')
-		file.write('TRIMCUR,string,enum,0 \n')
-		file.write('models,string,enum,nom \n')
-		file.write('vref,string,enum,0.6 \n')
-		file.write('vss,string,enum,0v00 \n')
-		file.write("vdda_evr,string,enum,{} \n".format(model_input[0]))
-		file.write("vdda_hpbg,string,enum,{} \n".format(model_input[0]))
-		file.write("vddpd,string,enum,{} \n".format(model_input[1]))
-		file.write("T,string,enum,{} \n".format(model_input[2]))
+    print(model_input)
+    assert len(model_input.shape) == 1
+    filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
+    with open(filepath, 'w') as file:
+        file.write('TRIMBG,string,enum,0 \n')
+        file.write('TRIMCUR,string,enum,0 \n')
+        file.write('models,string,enum,nom \n')
+        file.write('vref,string,enum,0.6 \n')
+        file.write('vss,string,enum,0v00 \n')
+        file.write("vdda_evr,string,enum,{} \n".format(model_input[0]))
+        file.write("vdda_hpbg,string,enum,{} \n".format(model_input[0]))
+        file.write("vddpd,string,enum,{} \n".format(model_input[1]))
+        file.write("T,string,enum,{} \n".format(model_input[2]))
 
-	tester.load_limits(os.path.join('.', 'advanced-bayesian-opt', 'configuration', 'limits.txt'))
-	#print('\nLoaded limits:\n{}'.format(tester.limits))
+    tester.load_limits(os.path.join('.', 'advanced-bayesian-opt', 'configuration', 'limits.txt'))
+    # print('\nLoaded limits:\n{}'.format(tester.limits))
 
-	tester.load_in_values(os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv'))
-	#print('\nLoaded in-values:\n{}'.format(tester.in_values))
-	#print(tester.runs)
+    tester.load_in_values(os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv'))
+    # print('\nLoaded in-values:\n{}'.format(tester.in_values))
+    # print(tester.runs)
 
-	# NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
-	tester.run_simulation()
-	# print('\nSimulation launched!')
+    # NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
+    tester.run_simulation()
+    # print('\nSimulation launched!')
 
-	tester.load_out_results()
-	
-	print('\nLoaded out-results:\n{}'.format(tester.out_results))
+    tester.load_out_results()
 
-	output=tester.out_results['RUN1']['pms_V_hpbg']
+    print('\nLoaded out-results:\n{}'.format(tester.out_results))
 
-	# print('\n Relevant output: \n {}, {}'.format(output,output+1))
+    output = tester.out_results['RUN1']['pms_V_hpbg']
 
-	return output
+    # print('\n Relevant output: \n {}, {}'.format(output,output+1))
 
+    return output
 
 
 def evaluate_model(model_input):
-	print(model_input)
-	model_input = np.array(model_input)
-	if len(model_input.shape) == 1:
-		one_datapoint = True
-		model_input = [model_input]
-	elif len(model_input.shape) == 2:
-		one_datapoint = False
-	else:
-		assert False, "illegal model input: {}".format(model_input)
+    print(model_input)
+    model_input = np.array(model_input)
+    if len(model_input.shape) == 1:
+        one_datapoint = True
+        model_input = [model_input]
+    elif len(model_input.shape) == 2:
+        one_datapoint = False
+    else:
+        assert False, "illegal model input: {}".format(model_input)
 
-	if one_datapoint:
-		return _evaluate_model_once(model_input)
-	else:
-		return [_evaluate_model_once(i) for i in model_input]
-
+    if one_datapoint:
+        return _evaluate_model_once(model_input)
+    else:
+        return [_evaluate_model_once(i) for i in model_input]
 
 
 # In[5]:
@@ -233,9 +229,8 @@ plt.figure(figsize=(12, 4))
 plt.plot(lls_)
 plt.xlabel("Training iteration")
 plt.ylabel("Log marginal likelihood")
-path = os.path.join(log_path, 'run_stats.txt')
+path = os.path.join(log_path, 'loss.png')
 plt.savefig(path)
-
 
 # Log all the relevant information
 
@@ -430,11 +425,13 @@ with open(filepath, 'wb') as file:
 # In[11]:
 
 
-# plt.figure(figsize=(12, 4))
-# plt.plot(mean_regrets)
-# plt.xlabel("Optimization iteration")
-# plt.ylabel("Mean regret")
-# plt.show()
+plt.figure(figsize=(12, 4))
+plt.plot(mean_regrets)
+plt.xlabel("Optimization iteration")
+plt.ylabel("Mean regret")
+path = os.path.join(log_path, 'mean_regrets.png')
+plt.savefig(path)
+
 
 # In[12]:
 
@@ -456,7 +453,7 @@ real_dists = transform_y.inverse_transform(model_info['typical_dist']) - transfo
 # In[15]:
 
 
-dists = [np.linalg.norm(i) for i in (real_choices - max_point)]
+# dists = [np.linalg.norm(i) for i in (real_choices - max_point)]
 # print(min(dists))
 
 # In[16]:
@@ -464,4 +461,3 @@ dists = [np.linalg.norm(i) for i in (real_choices - max_point)]
 
 # print(max(real_values))
 # print(max_value)
-
