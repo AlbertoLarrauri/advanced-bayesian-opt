@@ -32,6 +32,10 @@ class Tester:
         self.runs = dict()
 
         self.mt = mt
+        
+        self.timeout = False
+
+		
 
     def load_limits(self, filename):
         """
@@ -308,9 +312,7 @@ class Tester:
                             if row['Run'] not in self.out_results:
                                 self.out_results[row['Run']] = dict()
                             if row['Parameter Label'] in self.limits:
-                                if row['Parameter Label'] in self.out_results[row['Run']]:
-                                    print('\nWARNING: multiple values for param="{}" and run="{}" detected in "parameters.csv"!'.format(row['Parameter Label'], row['Run']))
-                                else:
+                                if not row['Parameter Label'] in self.out_results[row['Run']]:
                                     count += 1
                                     # completed_runs.add(row['Run'])
                                     self.out_results[row['Run']][row['Parameter Label']] = float(row['Value'])
@@ -327,6 +329,9 @@ class Tester:
                             delay = delay + 10
                             if delay >= timeout:
                                 print('Simulation took longer than timeout \n')
+                                
+                                self.timeout = True
+
                                 return
                             time.sleep(10)
                             # (re)initialize self.out_results for a new read
@@ -349,6 +354,7 @@ class Tester:
                 delay = delay + 10
                 if delay >= timeout:
                     print('Simulation took longer than timeout \n')
+                    self.timeout = True
                     return
                 time.sleep(10)
                 continue

@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+# !/usr/bin/env python3
 # coding: utf-8
 
 # In[1]:
@@ -12,7 +12,7 @@ from datetime import datetime
 from pyswarm import pso
 import joblib
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import tensorflow.compat.v2 as tf
 import tensorflow_probability as tfp
@@ -90,6 +90,8 @@ def _evaluate_model_once(model_input):
     # print('\nLoaded in-values:\n{}'.format(tester.in_values))
     # print(tester.runs)
 
+    timeout = True
+ 
     # NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
     tester.run_simulation()
     # print('\nSimulation launched!')
