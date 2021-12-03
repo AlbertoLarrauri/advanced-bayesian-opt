@@ -70,7 +70,7 @@ out_spec = [1.099, 1.165]
 
 def _evaluate_model_once(model_input):
     print(model_input)
-    assert len(model_input.shape) == 1
+    assert len(np.shape(model_input)) == 1
     filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
     with open(filepath, 'w') as file:
         file.write('TRIMBG,string,enum,0 \n')
@@ -108,10 +108,10 @@ def _evaluate_model_once(model_input):
 def evaluate_model(model_input):
     print(model_input)
     model_input = np.array(model_input)
-    if len(model_input.shape) == 1:
+    if len(np.shape(model_input)) == 1:
         one_datapoint = True
         model_input = [model_input]
-    elif len(model_input.shape) == 2:
+    elif len(np.shape(model_input)) == 2:
         one_datapoint = False
     else:
         assert False, "illegal model input: {}".format(model_input)
