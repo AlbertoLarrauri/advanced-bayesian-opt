@@ -119,7 +119,7 @@ def evaluate_model(model_input):
     model_input = np.array(model_input)
     if len(np.shape(model_input)) == 1:
         one_datapoint = True
-        model_input = [model_input]
+        # model_input = [model_input]
     elif len(np.shape(model_input)) == 2:
         one_datapoint = False
     else:
