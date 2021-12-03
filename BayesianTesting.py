@@ -90,13 +90,20 @@ def _evaluate_model_once(model_input):
     # print('\nLoaded in-values:\n{}'.format(tester.in_values))
     # print(tester.runs)
 
-    timeout = True
+    timeout_reached = True
  
     # NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
-    tester.run_simulation()
+    while timeout_reached:
+
+        tester.run_simulation()
+        tester.load_out_results()
+        timeout_reached = tester.timeout_reached
+        if timeout_reached:
+            print("Timeout! Trying again. \n")
+
     # print('\nSimulation launched!')
 
-    tester.load_out_results()
+
 
     print('\nLoaded out-results:\n{}'.format(tester.out_results))
 

@@ -33,7 +33,7 @@ class Tester:
 
         self.mt = mt
         
-        self.timeout = False
+        self.timeout_reached = False
 
 		
 
@@ -298,7 +298,9 @@ class Tester:
         # 'parameters.csv' stores the output measurements (and the input params) of *all* runs at one place;
         # the output measurements (but not also the input params) are also stored individually for each single run
         # separately in the folders ..ws_<username>/simulation/fcv_c40fla_bgp/RESULTS/TRAIN_BGP/TITAN/hpbg_startup_trimall/<RUN_NAME from simlist>/titan.tr.measure
+        self.timeout_reached = False
         delay = 0
+        self.out_results = dict()
         output_measurements_path = os.path.join('.', 'RESULTS', 'TRAIN_BGP', 'TITAN', 'parameters.csv')
 
         while True:
@@ -330,7 +332,7 @@ class Tester:
                             if delay >= timeout:
                                 print('Simulation took longer than timeout \n')
                                 
-                                self.timeout = True
+                                self.timeout_reached = True
 
                                 return
                             time.sleep(10)
@@ -354,7 +356,7 @@ class Tester:
                 delay = delay + 10
                 if delay >= timeout:
                     print('Simulation took longer than timeout \n')
-                    self.timeout = True
+                    self.timeout_reached = True
                     return
                 time.sleep(10)
                 continue
