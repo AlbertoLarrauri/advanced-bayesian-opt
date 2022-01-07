@@ -177,7 +177,7 @@ class Tester:
                             '$ENV{FCV_POWER_SUPPLY}="VDDPD!;VDDA_HPBG!;VDDA_EVR!;VSS!;VREF!";\n'
                             'my ($ip_filelist) = gf_ip_filelist("hpbg");\n'
                             '\n'
-                            'patterns: hpbg_startup_trimall\n'
+                            'patterns: hpbg_startup_trimall2\n'
                             '\n')
 
         # compute the number of possible runs; this is the product of the numbers of possible values of the in-parameters;
@@ -271,13 +271,13 @@ class Tester:
         # check if individual measurements files of the single runs are available and, if yes, make a backup of the
         # folder containing all individual measurements files
         user_name = getpass.getuser()
-        pattern_results_folder = '/opt/fwtmp/{0}/fcv/advanced/ip_hpbg_c40fla/nodm/default/ws_{0}/fcv_c40fla_bgp/RESULTS/TRAIN_BGP/TITAN/hpbg_startup_trimall'.format(
+        pattern_results_folder = '/opt/fwtmp/{0}/fcv/advanced/ip_hpbg_c40fla/nodm/default/ws_{0}/fcv_c40fla_bgp/RESULTS/TRAIN_BGP/TITAN/hpbg_startup_trimall2'.format(
             user_name)
         do_backup(pattern_results_folder)
 
         do_backup('simulation.log')
 
-        cmd = "nohup fcv -titan 'hpbg_startup_trimall/.*' > simulation.log 2>&1 &"   # '> simulation.log 2>&1' will redirect the output from stdout (and stderr) to 'simulation.log'
+        cmd = "nohup fcv -titan 'hpbg_startup_trimall2/.*' > simulation.log 2>&1 &"   # '> simulation.log 2>&1' will redirect the output from stdout (and stderr) to 'simulation.log'
         #cmd = "nohup fcv -titan 'hpbg_startup_trimall/.*' > simulation.log 2>&1"   # removed '&' from the end of the command since according to Roland fcv is run anyway in the background
 
         return_code = os.system(cmd)
@@ -288,7 +288,7 @@ class Tester:
 
         print('\nCheck "./simulation.log" for logs of the fcv execution')
 
-    def load_out_results(self, timeout=900, waiting_tolerance_threshold=100):
+    def load_out_results(self, timeout=300, waiting_tolerance_threshold=100):
         # load the measurements of the monitored output parameters during/after the execution of a simulation
         #
         # 'waiting_tolerance_threshold' indicates the number of missing/uncompleted simulation runs below which the user
@@ -311,6 +311,8 @@ class Tester:
                         count = 0
                         # completed_runs = set()
                         for row in reader:
+                            if not row['Pattern'] == 'hpbg_startup_trimall2': 
+                               continue  
                             if row['Run'] not in self.out_results:
                                 self.out_results[row['Run']] = dict()
                             if row['Parameter Label'] in self.limits:
@@ -326,7 +328,7 @@ class Tester:
                         #     for run in sorted(self.out_results):
                         #         if out_param not in self.out_results[run]:
                         #             print('\nWARNING: out-parameter "{}" specified by the user in "limits.txt" but not available for run="{}" in the measurements file "parameters.csv"!'.format(out_param, run))
-
+                        # print('Number of loaded results: {}'.format(count))
                         if count < len(self.runs)*len(self.limits):
                             delay = delay + 10
                             if delay >= timeout:

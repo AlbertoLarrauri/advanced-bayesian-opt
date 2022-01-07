@@ -107,7 +107,7 @@ def _evaluate_model_once(model_input):
 
     print('\nLoaded out-results:\n{}'.format(tester.out_results))
 
-    output = tester.out_results['RUN1']['pms_V_hpbg']
+    output = tester.out_results['RUN1']['V_ref_1v133_trimmed']
 
     # print('\n Relevant output: \n {}, {}'.format(output,output+1))
 
@@ -136,9 +136,9 @@ def evaluate_model(model_input):
 
 # Set run parameters
 
-num_samples = 50
+num_samples = 500
 observations = []
-training_proportion = 0.4
+training_proportion = 0.2
 optimization_proportion = 1. - training_proportion
 
 log_std_coefficient = 4.
@@ -281,6 +281,7 @@ norm_out_spec = transform_y.transform(np.expand_dims(out_spec, -1)).ravel()
 def norm_evaluate_model(norm_x):
     x = transform_X.inverse_transform(norm_x).astype(np.float32)
     y = evaluate_model(x)
+    y = np.array(y)
     norm_y = transform_y.transform(y.reshape(1, -1)).astype(np.float32).ravel()[0]
     return norm_y
 
@@ -382,8 +383,8 @@ for i in range(optimization_rounds):
                                          dtype=tf.float32) * gp_model.stddev()
 
 
-    if i % 10 == 0:
-        get_model_stats()
+#    if i % 10 == 0:
+#        get_model_stats()
     next_point, value = pso(func=lambda x: -adquisition_fn(np.float32(x)), lb=norm_lb, ub=norm_ub, maxiter=50,
                             debug=False)
     next_value = norm_evaluate_model(next_point)
@@ -400,6 +401,7 @@ for i in range(optimization_rounds):
 
 real_values = transform_y.inverse_transform(values[1:])
 real_choices = transform_X.inverse_transform(choices[1:])
+max_value = max(real_values)
 
 regrets = max_value - real_values
 
@@ -420,9 +422,9 @@ to_save = {
 with open(filepath, 'wb') as file:
     np.savez(file, **to_save)
 
-filepath = os.path.join(log_path, 'fitting_during_optimization.npyz')
-with open(filepath, 'wb') as file:
-    np.savez(file, **model_info)
+#filepath = os.path.join(log_path, 'fitting_during_optimization.npyz')
+#with open(filepath, 'wb') as file:
+#    np.savez(file, **model_info)
 
 # In[10]:
 
@@ -446,7 +448,7 @@ plt.savefig(path)
 # In[12]:
 
 
-real_dists = transform_y.inverse_transform(model_info['typical_dist']) - transform_y.inverse_transform([0.0])
+# real_dists = transform_y.inverse_transform(model_info['typical_dist']) - transform_y.inverse_transform([0.0])
 # plt.figure(figsize=(12, 4))
 # plt.plot(real_dists)
 # plt.xlabel("Optimization iteration/10")

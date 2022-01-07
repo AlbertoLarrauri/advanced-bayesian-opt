@@ -22,7 +22,7 @@ print('\n Scratchpad: \n')
 
 tester = Tester()
 
-model_input = np.array([2.3, 1.20, 42.])
+model_input = np.array([2.273437261581421, 1.104473352432251, 140.18836975097656])
 
 assert len(model_input.shape) == 1
 
@@ -46,15 +46,27 @@ tester.load_in_values(os.path.join('.', 'advanced-bayesian-opt', 'input_configur
 print('\nLoaded in-values:\n{}'.format(tester.in_values))
 print(tester.runs)
 
-# NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
-tester.run_simulation()
+
+timeout_reached = True
+while timeout_reached:
+
+        tester.run_simulation()
+        tester.load_out_results()
+        timeout_reached = tester.timeout_reached
+        if timeout_reached:
+            print("Timeout! Trying again. \n")
+
 # print('\nSimulation launched!')
 
-tester.load_out_results()
+# NOTE: comment out the next two lines if load_in_values() has been invoked with 'create_simlist=False' above
+# tester.run_simulation()
+# print('\nSimulation launched!')
+
+# tester.load_out_results()
 
 print('\nLoaded out-results:\n{}'.format(tester.out_results))
 
-output=tester.out_results['RUN1']['pms_V_hpbg']
+output=tester.out_results['RUN1']['V_ref_1v133_trimmed']
 
 # print('\n Relevant output: \n {}, {}'.format(output,output+1))
 
