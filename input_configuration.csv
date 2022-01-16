@@ -1,0 +1,9 @@
+TRIMBG,string,enum,0 
+TRIMCUR,string,enum,0 
+models,string,enum,nom 
+vref,string,enum,0.6 
+vss,string,enum,0v00 
+vdda_evr,string,enum,2.6440072059631348 
+vdda_hpbg,string,enum,2.6440072059631348 
+vddpd,string,enum,1.0800000429153442 
+T,string,enum,94.18647003173828 

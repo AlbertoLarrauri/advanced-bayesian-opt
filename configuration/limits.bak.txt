@@ -1,0 +1,7 @@
+
+%spec = (
+    V_ref_1v133_untrimmed   => { label => "V_ref_1v133_untrimmed", min => 1.099, max => 1.165, desc => "avg HPBG untrimmed measured between 100u and 140u" },
+    V_ref_1v133_trimmed     => { label => "V_ref_1v133_trimmed", min => 1.124, max => 1.14, desc => "avg HPBG trimmed measured between 100u and 140u" },
+    I_ref_20n_untrimmed     => { label => "I_ref_20n_untrimmed", max => -15.5e-6, min => -24.5e-6, desc =>"current reference untrimmed between 100u and 140u" },
+    I_ref_20n_trimmed       => { label => "I_ref_20n_trimmed", max => -19e-6, min => -21e-6, desc =>"current reference trimmed between 100u and 140u" },
+);
