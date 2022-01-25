@@ -34,6 +34,7 @@ class Tester:
         self.mt = mt
         
         self.timeout_reached = False
+        self.pattern='hpbg_startup_trimall2'
 
 		
 
@@ -172,13 +173,13 @@ class Tester:
             f_simlist = open(simlist_path, "w")
 
             # add the (fixed) header to the simlist-file
-            f_simlist.write('#!/bin/perl\n'
-                            '\n'
-                            '$ENV{FCV_POWER_SUPPLY}="VDDPD!;VDDA_HPBG!;VDDA_EVR!;VSS!;VREF!";\n'
-                            'my ($ip_filelist) = gf_ip_filelist("hpbg");\n'
-                            '\n'
-                            'patterns: hpbg_startup_trimall2\n'
-                            '\n')
+            f_simlist.writelines(['#!/bin/perl\n',
+                            '\n',
+                            '$ENV{FCV_POWER_SUPPLY}="VDDPD!;VDDA_HPBG!;VDDA_EVR!;VSS!;VREF!";\n',
+                            'my ($ip_filelist) = gf_ip_filelist("hpbg");\n',
+                            '\n',
+                            'patterns: {}\n'.format(self.pattern),
+                            '\n'])
 
         # compute the number of possible runs; this is the product of the numbers of possible values of the in-parameters;
         # 'vdda_evr' and 'vdda_hpbg', if both present, have always the same value, hence only one of them has to be considered
@@ -271,13 +272,13 @@ class Tester:
         # check if individual measurements files of the single runs are available and, if yes, make a backup of the
         # folder containing all individual measurements files
         user_name = getpass.getuser()
-        pattern_results_folder = '/opt/fwtmp/{0}/fcv/advanced/ip_hpbg_c40fla/nodm/default/ws_{0}/fcv_c40fla_bgp/RESULTS/TRAIN_BGP/TITAN/hpbg_startup_trimall2'.format(
-            user_name)
+        pattern_results_folder = '/opt/fwtmp/{0}/fcv/advanced/ip_hpbg_c40fla/nodm/default/ws_{0}/fcv_c40fla_bgp/RESULTS/TRAIN_BGP/TITAN/{1}'.format(
+            user_name,self.pattern)
         do_backup(pattern_results_folder)
 
         do_backup('simulation.log')
 
-        cmd = "nohup fcv -titan 'hpbg_startup_trimall2/.*' > simulation.log 2>&1 &"   # '> simulation.log 2>&1' will redirect the output from stdout (and stderr) to 'simulation.log'
+        cmd = "nohup fcv -titan '{}/.*' > simulation.log 2>&1 &".format(self.pattern)   # '> simulation.log 2>&1' will redirect the output from stdout (and stderr) to 'simulation.log'
         #cmd = "nohup fcv -titan 'hpbg_startup_trimall/.*' > simulation.log 2>&1"   # removed '&' from the end of the command since according to Roland fcv is run anyway in the background
 
         return_code = os.system(cmd)
@@ -311,7 +312,8 @@ class Tester:
                         count = 0
                         # completed_runs = set()
                         for row in reader:
-                            if not row['Pattern'] == 'hpbg_startup_trimall2': 
+                            #print('Parameter {}, value {} \n'.format(row['Parameter Label'], row['Value']))
+                            if not row['Pattern'] == self.pattern: 
                                continue  
                             if row['Run'] not in self.out_results:
                                 self.out_results[row['Run']] = dict()
@@ -320,8 +322,8 @@ class Tester:
                                     count += 1
                                     # completed_runs.add(row['Run'])
                                     self.out_results[row['Run']][row['Parameter Label']] = float(row['Value'])
-                            else:
-                                print('\nWARNING: Parameter "{}" measured in "parameters.csv" for run="{}" but not specified in "limits.txt"!'.format(row['Parameter Label'], row['Run']))
+                            #else:
+                                #print('\nWARNING: Parameter "{}" measured in "parameters.csv" for run="{}" but not specified in "limits.txt"!'.format(row['Parameter Label'], row['Run']))
 
                         # check if all out-params specified in "limits.txt" have been measured in every run
                         # for out_param in self.limits:

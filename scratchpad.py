@@ -29,8 +29,8 @@ assert len(model_input.shape) == 1
 filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
 
 with open(filepath, 'w') as file:
-    file.write('TRIMBG,string,enum,0 \n')
-    file.write('TRIMCUR,string,enum,0 \n')
+    file.write('TRIMBG,string,enum,0b1000000\n')
+    file.write('TRIMCUR,string,enum,0b10000 \n')
     file.write('models,string,enum,nom \n')
     file.write('vref,string,enum,0.6 \n')
     file.write('vss,string,enum,0v00 \n')
@@ -66,7 +66,7 @@ while timeout_reached:
 
 print('\nLoaded out-results:\n{}'.format(tester.out_results))
 
-output=tester.out_results['RUN1']['V_ref_1v133_trimmed']
+output=tester.out_results['RUN1']['V_ref_1v133_untrimmed']
 
 # print('\n Relevant output: \n {}, {}'.format(output,output+1))
 
