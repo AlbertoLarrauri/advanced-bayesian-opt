@@ -44,7 +44,7 @@ from tester.tester import Tester
 time_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 log_path = os.path.join('.', 'advanced-bayesian-opt', time_now)
 os.mkdir(log_path)
-
+print(log_path)
 # Initialize tester object
 
 tester = Tester()
