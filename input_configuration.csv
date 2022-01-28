@@ -5,5 +5,5 @@ vref,string,enum,0.6
 vss,string,enum,0v00 
 vdda_evr,string,enum,2.200000047683716 
 vdda_hpbg,string,enum,2.200000047683716 
-vddpd,string,enum,1.0800000429153442 
-T,string,enum,63.69082260131836 
+vddpd,string,enum,1.116105318069458 
+T,string,enum,58.2224006652832 
