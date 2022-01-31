@@ -136,13 +136,13 @@ def evaluate_model(model_input):
 
 # Set run parameters
 
-num_samples = 180
+num_samples = 90
 observations = []
 training_proportion = 0.4
 optimization_proportion = 1. - training_proportion
 
 log_std_coefficient = 4.
-constant_std_coefficient = 20.
+constant_std_coefficient = 10.
 
 run_stats = {
     'num_samples': num_samples,
