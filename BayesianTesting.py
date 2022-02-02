@@ -136,7 +136,7 @@ def evaluate_model(model_input):
 
 # Set run parameters
 
-num_samples = 90
+num_samples = 180
 observations = []
 training_proportion = 0.4
 optimization_proportion = 1. - training_proportion
