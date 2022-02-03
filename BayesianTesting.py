@@ -136,7 +136,7 @@ def evaluate_model(model_input):
 
 # Set run parameters
 
-num_samples = 180
+num_samples = 90
 observations = []
 training_proportion = 0.4
 optimization_proportion = 1. - training_proportion
@@ -379,9 +379,9 @@ for i in range(optimization_rounds):
             predictive_noise_variance=0.,
             jitter=1e-4)
             
-#        return gp_model.stddev()
+        return gp_model.stddev()
 
-        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
+#        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
 
 
 #    if i % 10 == 0:
