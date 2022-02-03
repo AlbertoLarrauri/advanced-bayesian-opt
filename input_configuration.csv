@@ -1,9 +1,9 @@
-TRIMBG,string,enum,0b1000000 
+TRIMBG,string,enum,0b1000000
 TRIMCUR,string,enum,0b10000 
 models,string,enum,nom 
 vref,string,enum,0.6 
 vss,string,enum,0v00 
 vdda_evr,string,enum,2.200000047683716 
 vdda_hpbg,string,enum,2.200000047683716 
-vddpd,string,enum,1.209054946899414 
-T,string,enum,-39.999996185302734 
+vddpd,string,enum,1.210272192955017 
+T,string,enum,63.08915710449219 
