@@ -1,1 +1,0 @@
-{"num_samples": 90, "training_proportion": 0.4, "log_std_coefficient": 4.0, "constant_std_coefficient": 20.0}
