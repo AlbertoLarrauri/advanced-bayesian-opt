@@ -3,7 +3,7 @@ TRIMCUR,string,enum,0b10000
 models,string,enum,nom 
 vref,string,enum,0.6 
 vss,string,enum,0v00 
-vdda_evr,string,enum,2.200000047683716 
-vdda_hpbg,string,enum,2.200000047683716 
-vddpd,string,enum,1.3215367794036865 
-T,string,enum,61.92070007324219 
+vdda_evr,string,enum,2.56 
+vdda_hpbg,string,enum,2.56 
+vddpd,string,enum,1.278 
+T,string,enum,89.0 

@@ -71,13 +71,13 @@ def run_simulation(x):
 	return output
 
 
-points_path = os.path.join('.', 'advanced-bayesian-opt', 'Predictions', 'predicted_optimums180.npyz')
-vals_path = os.path.join('.', 'advanced-bayesian-opt', 'Predictions','real_values180.npyz')
+points_path = os.path.join('.', 'advanced-bayesian-opt', 'Predictions', 'training_points27.npyz')
+vals_path = os.path.join('.', 'advanced-bayesian-opt', 'Predictions','training_values27.npyz')
 
 points=[]
 with open(points_path, 'rb') as file:
 	data=np.load(file)
-	points=data['choices']
+	points=data['points']
 
 
 real_values=[]
@@ -88,9 +88,37 @@ for point in points:
 
 
 to_save={
-'real_values':real_values,
+'values':real_values,
 }
 
 with open(vals_path, 'wb') as file:
 	np.savez(file,**to_save)
+	
+
+
+points_path = os.path.join('.', 'advanced-bayesian-opt', 'Predictions', 'training_points64.npyz')
+vals_path = os.path.join('.', 'advanced-bayesian-opt', 'Predictions','training_values64.npyz')
+
+points=[]
+with open(points_path, 'rb') as file:
+	data=np.load(file)
+	points=data['points']
+
+
+real_values=[]
+
+for point in points:
+	val=run_simulation(point)
+	real_values.append(val)
+
+
+to_save={
+'values':real_values,
+}
+
+with open(vals_path, 'wb') as file:
+	np.savez(file,**to_save)
+
+
+
 
