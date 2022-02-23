@@ -42,7 +42,7 @@ from tester.tester import Tester
 # Make directory for saving logs
 
 time_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'_inf_gain',)
+log_path = os.path.join('.', 'advanced-bayesian-opt', time_now)
 os.mkdir(log_path)
 print(log_path)
 # Initialize tester object
@@ -136,15 +136,13 @@ def evaluate_model(model_input):
 
 # Set run parameters
 
-
-num_samples = 100
+num_samples = 90
 observations = []
-training_proportion = 0.25
+training_proportion = 0.4
 optimization_proportion = 1. - training_proportion
 
 log_std_coefficient = 4.
 constant_std_coefficient = 10.
-
 
 run_stats = {
     'num_samples': num_samples,
@@ -160,48 +158,19 @@ with open(path, 'w') as file:
 # In[6]:
 
 
-
-with open('./validation_samples.csv', newline='') as csvfile:
-    reader = pandas.read_csv(csvfile,delimiter=';')
-
-nom_cols =(reader['corner']=='nom') & (reader['Parameter Label']=='V_ref_1v133_untrimmed')
-validation_frame= reader[nom_cols]
-valid_real_ys=[]
-valid_real_Xs=[]
-for index, row in validation_frame.iterrows():
-    valid_real_ys.append(row['Value'])
-    valid_real_Xs.append([row['p_vdda_evr'], row['p_vddpd'], row['temperature']])
-
-
-    
 num_training_samples = np.int32(num_samples * training_proportion)
+# num_optimization_rounds=np.int32(optimization_proportion*num_samples)
 
 
-indices=[i for i in range (len(valid_real_Xs))]
-training_ids=random.sample(indices,num_training_samples)
-validation_ids=indices
-for val in training_ids:
-    validation_ids.remove(val)
-
-training_Xs=np.array([valid_real_Xs[i] for i in training_ids], dtype=np.float32)
-training_ys=np.array([valid_real_ys[i] for i in training_ids], dtype=np.float32)
+# In[7]:
 
 
-# Saving validation points
-val_real_Xs=np.array([valid_real_Xs[i] for i in validation_ids],dtype=np.float32)
-val_real_ys=np.array([valid_real_ys[i] for i in validation_ids],dtype=np.float32)
+# Generate training points 
+training_Xs = np.random.uniform(lb, ub, (num_training_samples, 3))
+training_Xs = training_Xs.astype(np.float32)
+training_ys = evaluate_model(training_Xs)
+training_ys = np.array(training_ys, dtype=np.float32)
 
-filepath = os.path.join(log_path, 'validation.npyz')
-to_save = {
-    'points': val_real_Xs,
-    'values': val_real_ys,
-}
-
-
-with open(filepath, 'wb') as file:
-    np.savez(file, **to_save)
-
-    
 # Normalize the data
 transform_X = StandardScaler()
 norm_training_Xs = transform_X.fit_transform(training_Xs)
@@ -328,67 +297,67 @@ optimization_rounds = np.int32(optimization_proportion * num_samples)
 
 t = 0
 
-# validation_samples = 300
+validation_samples = 300
 
-# norm_validation_Xs = np.random.uniform(norm_lb, norm_ub, (validation_samples, 3))
-# norm_validation_Xs = [i for i in norm_validation_Xs.astype(np.float32)]
+norm_validation_Xs = np.random.uniform(norm_lb, norm_ub, (validation_samples, 3))
+norm_validation_Xs = [i for i in norm_validation_Xs.astype(np.float32)]
 
-# model_info = {
-#     'max_std': [],
-#     'typical_std': [],
-#     'max_dist': [],
-#     'typical_dist': []
-# }
+model_info = {
+    'max_std': [],
+    'typical_std': [],
+    'max_dist': [],
+    'typical_dist': []
+}
 
 
-# def get_model_stats():
-#     @tf.function(autograph=False, experimental_compile=False)
-#     def std_distance(x, y):
-#         gp_model = tfd.GaussianProcessRegressionModel(
-#             kernel=kernel,
-#             index_points=[x],
-#             observation_index_points=norm_observation_Xs,
-#             observations=norm_observation_ys,
-#             observation_noise_variance=noise_var,
-#             predictive_noise_variance=0.,
-#             jitter=1e-5)
-#         return (abs(gp_model.mean() - y)) / gp_model.stddev()
+def get_model_stats():
+    @tf.function(autograph=False, experimental_compile=False)
+    def std_distance(x, y):
+        gp_model = tfd.GaussianProcessRegressionModel(
+            kernel=kernel,
+            index_points=[x],
+            observation_index_points=norm_observation_Xs,
+            observations=norm_observation_ys,
+            observation_noise_variance=noise_var,
+            predictive_noise_variance=0.,
+            jitter=1e-5)
+        return (abs(gp_model.mean() - y)) / gp_model.stddev()
 
-#     @tf.function(autograph=False, experimental_compile=False)
-#     def distance(x, y):
-#         gp_model = tfd.GaussianProcessRegressionModel(
-#             kernel=kernel,
-#             index_points=[x],
-#             observation_index_points=norm_observation_Xs,
-#             observations=norm_observation_ys,
-#             observation_noise_variance=noise_var,
-#             predictive_noise_variance=0.,
-#             jitter=1e-5)
-#         return (abs(gp_model.mean() - y))
+    @tf.function(autograph=False, experimental_compile=False)
+    def distance(x, y):
+        gp_model = tfd.GaussianProcessRegressionModel(
+            kernel=kernel,
+            index_points=[x],
+            observation_index_points=norm_observation_Xs,
+            observations=norm_observation_ys,
+            observation_noise_variance=noise_var,
+            predictive_noise_variance=0.,
+            jitter=1e-5)
+        return (abs(gp_model.mean() - y))
 
-#     def point_std_score(x):
-#         y = norm_evaluate_model(x)
-#         return std_distance(x, y)
+    def point_std_score(x):
+        y = norm_evaluate_model(x)
+        return std_distance(x, y)
 
-#     def point_score(x):
-#         y = norm_evaluate_model(x)
-#         return distance(x, y)
+    def point_score(x):
+        y = norm_evaluate_model(x)
+        return distance(x, y)
 
-#     point, value = pso(func=lambda x: -point_score(np.float32(x)), lb=norm_lb, ub=norm_ub, maxiter=15, debug=False)
-#     model_info['max_dist'].append(-value)
+    point, value = pso(func=lambda x: -point_score(np.float32(x)), lb=norm_lb, ub=norm_ub, maxiter=15, debug=False)
+    model_info['max_dist'].append(-value)
 
-#     point, value = pso(func=lambda x: -point_std_score(np.float32(x)), lb=norm_lb, ub=norm_ub, maxiter=15, debug=False)
-#     model_info['max_std'].append(-value)
+    point, value = pso(func=lambda x: -point_std_score(np.float32(x)), lb=norm_lb, ub=norm_ub, maxiter=15, debug=False)
+    model_info['max_std'].append(-value)
 
-#     scores = [point_score(x) for x in norm_validation_Xs]
-#     scores.sort()
-#     model_info['typical_dist'].append(scores[-1])
+    scores = [point_score(x) for x in norm_validation_Xs]
+    scores.sort()
+    model_info['typical_dist'].append(scores[-1])
 
-#     std_scores = [point_std_score(x) for x in norm_validation_Xs]
-#     std_scores.sort()
-#     model_info['typical_std'].append(std_scores[-1])
+    std_scores = [point_std_score(x) for x in norm_validation_Xs]
+    std_scores.sort()
+    model_info['typical_std'].append(std_scores[-1])
 
-#     return
+    return
 
 
 current_max_value = max(norm_observation_ys)
@@ -415,7 +384,8 @@ for i in range(optimization_rounds):
 #        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
 
 
-
+#    if i % 10 == 0:
+#        get_model_stats()
     next_point, value = pso(func=lambda x: -adquisition_fn(np.float32(x)), lb=norm_lb, ub=norm_ub, maxiter=50,
                             debug=False)
     next_value = norm_evaluate_model(next_point)
@@ -453,8 +423,19 @@ to_save = {
 with open(filepath, 'wb') as file:
     np.savez(file, **to_save)
 
+#filepath = os.path.join(log_path, 'fitting_during_optimization.npyz')
+#with open(filepath, 'wb') as file:
+#    np.savez(file, **model_info)
 
-    
+# In[10]:
+
+
+# plt.figure(figsize=(12, 4))
+# plt.plot(regrets)
+# plt.xlabel("Optimization iteration")
+# plt.ylabel("Value")
+
+# In[11]:
 
 
 plt.figure(figsize=(12, 4))
@@ -465,3 +446,31 @@ path = os.path.join(log_path, 'mean_regrets.png')
 plt.savefig(path)
 
 
+# In[12]:
+
+
+# real_dists = transform_y.inverse_transform(model_info['typical_dist']) - transform_y.inverse_transform([0.0])
+# plt.figure(figsize=(12, 4))
+# plt.plot(real_dists)
+# plt.xlabel("Optimization iteration/10")
+# plt.ylabel("Value")
+
+# In[13]:
+
+
+# plt.figure(figsize=(12, 4))
+# plt.plot(model_info['max_std'])
+# plt.xlabel("Optimization iteration")
+# plt.ylabel("Value")
+
+# In[15]:
+
+
+# dists = [np.linalg.norm(i) for i in (real_choices - max_point)]
+# print(min(dists))
+
+# In[16]:
+
+
+# print(max(real_values))
+# print(max_value)
