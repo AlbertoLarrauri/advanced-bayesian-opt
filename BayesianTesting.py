@@ -6,6 +6,8 @@
 
 import time
 # import IPython
+import pandas
+import random
 import os
 import json
 from datetime import datetime
@@ -42,7 +44,7 @@ from tester.tester import Tester
 # Make directory for saving logs
 
 time_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'_inf_gain',)
+log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'bay_opt',)
 os.mkdir(log_path)
 print(log_path)
 # Initialize tester object
@@ -161,7 +163,7 @@ with open(path, 'w') as file:
 
 
 
-with open('./validation_samples.csv', newline='') as csvfile:
+with open(os.path.join('.',  'advanced-bayesian-opt' ,'validation_samples.csv'), newline='') as csvfile:
     reader = pandas.read_csv(csvfile,delimiter=';')
 
 nom_cols =(reader['corner']=='nom') & (reader['Parameter Label']=='V_ref_1v133_untrimmed')
@@ -410,9 +412,9 @@ for i in range(optimization_rounds):
             predictive_noise_variance=0.,
             jitter=1e-4)
             
-        return gp_model.stddev()
+#        return gp_model.stddev()
 
-#        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
+        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
 
 
 
