@@ -10,6 +10,7 @@ import pandas
 import random
 import os
 import json
+import random
 from datetime import datetime
 from pyswarm import pso
 import joblib
@@ -44,7 +45,7 @@ from tester.tester import Tester
 # Make directory for saving logs
 
 time_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'bay_opt',)
+log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'inf_gain',)
 os.mkdir(log_path)
 print(log_path)
 # Initialize tester object
@@ -138,6 +139,9 @@ def evaluate_model(model_input):
 
 # Set run parameters
 
+seed=int.from_bytes(os.urandom(4),'big')
+np.random.seed(seed)
+random.seed(seed)
 
 num_samples = 100
 observations = []
@@ -152,7 +156,8 @@ run_stats = {
     'num_samples': num_samples,
     'training_proportion': training_proportion,
     'log_std_coefficient': log_std_coefficient,
-    'constant_std_coefficient': constant_std_coefficient
+    'constant_std_coefficient': constant_std_coefficient,
+    'seed':seed
 }
 
 path = os.path.join(log_path, 'run_stats.txt')
@@ -412,9 +417,9 @@ for i in range(optimization_rounds):
             predictive_noise_variance=0.,
             jitter=1e-4)
             
-#        return gp_model.stddev()
+        return gp_model.stddev()
 
-        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
+#        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
 
 
 
