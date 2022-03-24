@@ -45,10 +45,13 @@ from tester.tester import Tester
 # Make directory for saving logs
 
 time_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'bay_opt_min',)
+log_path = os.path.join('.', 'advanced-bayesian-opt', time_now+'bay_opt',)
 os.mkdir(log_path)
 print(log_path)
 # Initialize tester object
+
+start_time = time.time()
+simulation_time = 0.0
 
 tester = Tester()
 tester.load_limits(os.path.join('.', 'advanced-bayesian-opt', 'configuration', 'limits.txt'))
@@ -72,6 +75,7 @@ out_spec = [1.099, 1.165]
 # Returns the model output on single or multiple inputs (as in Cristi's code )
 
 def _evaluate_model_once(model_input):
+	simulation_start = time.time()
     print(model_input)
     assert len(np.shape(model_input)) == 1
     filepath = os.path.join('.', 'advanced-bayesian-opt', 'input_configuration.csv')
@@ -113,6 +117,9 @@ def _evaluate_model_once(model_input):
     output = tester.out_results['RUN1']['V_ref_1v133_untrimmed']
 
     # print('\n Relevant output: \n {}, {}'.format(output,output+1))
+    
+    simulation_end = time.time()
+    simulation_time = simulation_time + simulation_end - simulation_start
 
     return output
 
@@ -152,17 +159,17 @@ log_std_coefficient = 4.
 constant_std_coefficient = 10.
 
 
-run_stats = {
-    'num_samples': num_samples,
-    'training_proportion': training_proportion,
-    'log_std_coefficient': log_std_coefficient,
-    'constant_std_coefficient': constant_std_coefficient,
-    'seed':seed
-}
+#run_stats = {
+#    'num_samples': num_samples,
+#    'training_proportion': training_proportion,
+#    'log_std_coefficient': log_std_coefficient,
+#    'constant_std_coefficient': constant_std_coefficient,
+#    'seed':seed
+#}
 
-path = os.path.join(log_path, 'run_stats.txt')
-with open(path, 'w') as file:
-    json.dump(run_stats, file)
+#path = os.path.join(log_path, 'run_stats.txt')
+#with open(path, 'w') as file:
+#    json.dump(run_stats, file)
 
 # In[6]:
 
@@ -419,10 +426,10 @@ for i in range(optimization_rounds):
             
 #        return gp_model.stddev()
 # MAX
-#        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
+        return gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
 
 # MIN
-        return -gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
+#        return -gp_model.mean() + tf.cast(tf.sqrt(log_std_coefficient * np.log2(t + 1) + constant_std_coefficient), dtype=tf.float32) * gp_model.stddev()
 
 
 
@@ -474,5 +481,25 @@ plt.xlabel("Optimization iteration")
 plt.ylabel("Mean regret")
 path = os.path.join(log_path, 'mean_regrets.png')
 plt.savefig(path)
+
+
+end_time = time.time()
+
+total_time = end_time - start_time
+
+run_stats = {
+    'num_samples': num_samples,
+    'training_proportion': training_proportion,
+    'log_std_coefficient': log_std_coefficient,
+    'constant_std_coefficient': constant_std_coefficient,
+    'seed':seed,
+    'total_time':total_time,
+    'simulation_time':simulation_time
+}
+
+path = os.path.join(log_path, 'run_stats.txt')
+with open(path, 'w') as file:
+    json.dump(run_stats, file)
+
 
 
