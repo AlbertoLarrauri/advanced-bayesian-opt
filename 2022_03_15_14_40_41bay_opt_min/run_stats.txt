@@ -1,1 +1,0 @@
-{"num_samples": 100, "training_proportion": 0.25, "log_std_coefficient": 4.0, "constant_std_coefficient": 10.0, "seed": 2109997854}
